@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mô Phỏng Xử Lý & Chồng Ảnh Thiên Văn (Calibration & Stacking)</title>
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --card-bg: #131b2e;
+            --card-border: #23314d;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent-blue: #38bdf8;
+            --accent-green: #4ade80;
+            --accent-amber: #fbbf24;
+            --accent-red: #f43f5e;
+            --accent-purple: #c084fc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1300px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        header {
+            text-align: center;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            color: var(--accent-blue);
+            margin-bottom: 6px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.4;
+        }
+
+        /* Controls Section */
+        .panel {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 16px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.5);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .control-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .control-header .badge {
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: var(--card-border);
+            color: var(--accent-blue);
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #27354f;
+            outline: none;
+            cursor: pointer;
+            accent-color: var(--accent-blue);
+        }
+
+        .actions-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.88rem;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        button.btn-secondary {
+            background: #334155;
+        }
+
+        button.btn-secondary:hover {
+            background: #475569;
+        }
+
+        /* Charts Layout */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chart-title {
+            font-size: 0.92rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chart-title .tag {
+            font-size: 0.72rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .tag-red { background: rgba(244, 63, 94, 0.2); color: #f43f5e; }
+        .tag-amber { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+        .tag-purple { background: rgba(192, 132, 252, 0.2); color: #c084fc; }
+        .tag-green { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 220px;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Stats Panel */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .stat-card .label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .stat-card .value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
+        .stat-card .sub-value {
+            font-size: 0.75rem;
+            color: var(--accent-green);
+            margin-top: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Mô Phỏng Xử Lý & Chồng Ảnh Thiên Văn (Astro Calibration & Stacking)</h1>
+        <p>Thực nghiệm loại bỏ Nhiễu Đọc (Readout Noise / Bias Offset) và Dòng Tối (Thermal Dark Current) bằng Master Bias & Master Dark Frame để nâng cao Tỷ số Tín hiệu trên Nhiễu (SNR).</p>
+    </header>
+
+    <div class="panel">
+        <div class="controls-grid">
+            <!-- Light Frames Slider -->
+            <div class="control-group">
+                <div class="control-header">
+                    <span>Số lượng Light Frames</span>
+                    <span class="badge" id="valLight">10</span>
+                </div>
+                <div class="slider-row">
+                    <input type="range" id="sliderLight" min="1" max="100" value="10">
+                </div>
+            </div>
+
+            <!-- Dark Frames Slider -->
+            <div class="control-group">
+                <div class="control-header">
+                    <span>Số lượng Dark Frames</span>
+                    <span class="badge" id="valDark">10</span>
+                </div>
+                <div class="slider-row">
+                    <input type="range" id="sliderDark" min="0" max="100" value="10">
+                </div>
+            </div>
+
+            <!-- Bias Frames Slider -->
+            <div class="control-group">
+                <div class="control-header">
+                    <span>Số lượng Bias Frames</span>
+                    <span class="badge" id="valBias">10</span>
+                </div>
+                <div class="slider-row">
+                    <input type="range" id="sliderBias" min="0" max="100" value="10">
+                </div>
+            </div>
+
+            <!-- Bias Offset Adjustment -->
+            <div class="control-group">
+                <div class="control-header">
+                    <span>Mức nền nhiễu hạt</span>
+                    <span class="badge" id="valBiasOffset">15</span>
+                </div>
+                <div class="slider-row">
+                    <input type="range" id="sliderBiasOffset" min="5" max="50" value="15">
+                </div>
+            </div>
+
+            <!-- Shot Noise Level -->
+            <div class="control-group">
+                <div class="control-header">
+                    <span>Mức độ Nhiễu Hạt</span>
+                    <span class="badge" id="valShotNoise">4.0</span>
+                </div>
+                <div class="slider-row">
+                    <input type="range" id="sliderShotNoise" min="0" max="10" step="0.5" value="4.0">
+                </div>
+            </div>
+
+            <!-- Dark Current Adjustment -->
+            <div class="control-group">
+                <div class="control-header">
+                    <span>Mức độ nhiễu nhiệt</span>
+                    <span class="badge" id="valDarkCurrent">20</span>
+                </div>
+                <div class="slider-row">
+                    <input type="range" id="sliderDarkCurrent" min="0" max="60" value="20">
+                </div>
+            </div>
+        </div>
+
+        <div class="actions-bar">
+            <div class="btn-group">
+                <button id="btnRegenerate" class="btn-secondary">🔄 Sinh Tín Hiệu Gốc Mới</button>
+                <!-- <button id="btnProcess">🚀 Chạy Calibration & Stacking</button> -->
+            </div>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Trục tung cố định [0 - 255] cho tất cả các đồ thị</span>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <!-- Chart 0: Original Light -->
+        <div class="chart-card">
+            <div class="chart-title">
+                <span>0. Original Light</span>
+                <span class="tag tag-red">Tín hiệu lý tưởng</span>
+            </div>
+            <div class="canvas-container">
+                <canvas id="chartOrigLight"></canvas>
+            </div>
+        </div>
+        <!-- Chart 1: Raw Light Frame -->
+        <div class="chart-card">
+            <div class="chart-title">
+                <span>1. Raw Light Frame (1 Tấm)</span>
+                <span class="tag tag-red">Tín hiệu + Nhiễu</span>
+            </div>
+            <div class="canvas-container">
+                <canvas id="chartRawLight"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 2: Master Bias -->
+        <div class="chart-card">
+            <div class="chart-title">
+                <span>2. Master Bias Frame</span>
+                <span class="tag tag-amber">Cố định Readout Offset</span>
+            </div>
+            <div class="canvas-container">
+                <canvas id="chartMasterBias"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 3: Master Dark -->
+        <div class="chart-card">
+            <div class="chart-title">
+                <span>3. Master Dark Frame</span>
+                <span class="tag tag-purple">Nhiễu Nhiệt + Bias</span>
+            </div>
+            <div class="canvas-container">
+                <canvas id="chartMasterDark"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 4: Final Calibrated Image -->
+        <div class="chart-card">
+            <div class="chart-title">
+                <span>4. Master Calibrated Light</span>
+                <span class="tag tag-green">Đã Lọc Nhiễu & Chồng</span>
+            </div>
+            <div class="canvas-container">
+                <canvas id="chartCalibrated"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="label">SNR Ảnh Thô Ban Đầu (Raw SNR)</div>
+                <div class="value" id="statRawSNR">0.00</div>
+                <div class="sub-value" id="statRawSNRdB">0.00 dB</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">SNR Ảnh Sau Calibration & Stack</div>
+                <div class="value" id="statFinalSNR">0.00</div>
+                <div class="sub-value" id="statFinalSNRdB">0.00 dB</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Tỷ Lệ Tăng SNR Thực Tế</div>
+                <div class="value" id="statGainRatio">0.00x</div>
+                <div class="sub-value" id="statGainTheory">Lý thuyết sqrt(N): 3.16x</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Mức Độ Khử Bias & Dark</div>
+                <div class="value" id="statOffsetRemoved">100%</div>
+                <div class="sub-value">Đã đưa nền nhiễu nhiệt về 0</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const DATA_COUNT = 100;
+    const MAX_SIGNAL = 30;
+    const MIN_SIGNAL = 20;
+    
+    // Core Data Arrays
+    let baseSignal = new Array(DATA_COUNT);
+    let masterBias = new Array(DATA_COUNT);
+    let masterDark = new Array(DATA_COUNT);
+    let sampleRawLight = new Array(DATA_COUNT);
+    let finalCalibrated = new Array(DATA_COUNT);
+
+    // DOM Elements
+    const sliderLight = document.getElementById('sliderLight');
+    const sliderDark = document.getElementById('sliderDark');
+    const sliderBias = document.getElementById('sliderBias');
+    const sliderBiasOffset = document.getElementById('sliderBiasOffset');
+    const sliderDarkCurrent = document.getElementById('sliderDarkCurrent');
+    const sliderShotNoise = document.getElementById('sliderShotNoise');
+
+    const valLight = document.getElementById('valLight');
+    const valDark = document.getElementById('valDark');
+    const valBias = document.getElementById('valBias');
+    const valBiasOffset = document.getElementById('valBiasOffset');
+    const valDarkCurrent = document.getElementById('valDarkCurrent');
+    const valShotNoise = document.getElementById('valShotNoise');
+
+    const btnRegenerate = document.getElementById('btnRegenerate');
+    // const btnProcess = document.getElementById('btnProcess');
+
+    const canvasOrigLight = document.getElementById('chartOrigLight');
+    const canvasRawLight = document.getElementById('chartRawLight');
+    const canvasMasterBias = document.getElementById('chartMasterBias');
+    const canvasMasterDark = document.getElementById('chartMasterDark');
+    const canvasCalibrated = document.getElementById('chartCalibrated');
+
+    const statRawSNR = document.getElementById('statRawSNR');
+    const statRawSNRdB = document.getElementById('statRawSNRdB');
+    const statFinalSNR = document.getElementById('statFinalSNR');
+    const statFinalSNRdB = document.getElementById('statFinalSNRdB');
+    const statGainRatio = document.getElementById('statGainRatio');
+    const statGainTheory = document.getElementById('statGainTheory');
+
+    /**
+     * Random Gaussian Noise using Box-Muller Transform
+     */
+    function randomGaussian(mean = 0, stdev = 1) {
+        let u1 = 1 - Math.random();
+        let u2 = 1 - Math.random();
+        let randStd = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+        return mean + randStd * stdev;
+    }
+
+    /**
+     * Generates standard base signal (100 pixels)
+     * - First 50 pixels: 10-20, delta <= 2
+     * - Last 50 pixels: 4 or 5
+     */
+    function generateBaseSignal() {
+        let current = 10 + Math.floor(Math.random() * 11);
+        baseSignal[0] = current;
+
+        for (let i = 1; i < 50; i++) {
+            let delta = Math.floor(Math.random() * 5) - 2; // -2, -1, 0, 1, 2
+            current += delta;
+            if (current < MIN_SIGNAL) current = MIN_SIGNAL;
+            if (current > MAX_SIGNAL) current = MAX_SIGNAL;
+            baseSignal[i] = current;
+        }
+
+        for (let i = 50; i < DATA_COUNT; i++) {
+            baseSignal[i] = Math.random() < 0.5 ? 4 : 5;
+        }
+    }
+
+    function runCalibrationPipeline() {
+        const nLight = parseInt(sliderLight.value, 10);
+        const nDark = parseInt(sliderDark.value, 10);
+        const nBias = parseInt(sliderBias.value, 10);
+        const biasOffset = parseFloat(sliderBiasOffset.value);
+        const darkCurrent = parseFloat(sliderDarkCurrent.value);
+        const shotNoiseLevel = parseFloat(sliderShotNoise.value);
+
+        // Update Slider UI Badges
+        valLight.textContent = nLight;
+        valDark.textContent = nDark;
+        valBias.textContent = nBias;
+        valBiasOffset.textContent = biasOffset;
+        valDarkCurrent.textContent = darkCurrent;
+        valShotNoise.textContent = shotNoiseLevel.toFixed(1);
+
+        // 1. Generate Master Bias Frame (Readout noise + Bias Offset)
+        masterBias.fill(0);
+        if (nBias > 0) {
+            for (let k = 0; k < nBias; k++) {
+                for (let i = 0; i < DATA_COUNT; i++) {
+                    let readoutNoise = randomGaussian(0, 1.5);
+                    masterBias[i] += biasOffset + readoutNoise;
+                }
+            }
+            for (let i = 0; i < DATA_COUNT; i++) {
+                masterBias[i] /= nBias;
+            }
+        } else {
+            // No bias calibration -> 0
+            masterBias.fill(0);
+        }
+
+        // 2. Generate Master Dark Frame (Bias Offset + Readout Noise + Thermal Dark Current + Thermal Noise)
+        masterDark.fill(0);
+        if (nDark > 0) {
+            for (let k = 0; k < nDark; k++) {
+                for (let i = 0; i < DATA_COUNT; i++) {
+                    let readoutNoise = randomGaussian(0, 1.5);
+                    let thermalNoise = randomGaussian(0, Math.sqrt(Math.max(1, darkCurrent * 0.2)));
+                    masterDark[i] += biasOffset + darkCurrent + readoutNoise + thermalNoise;
+                }
+            }
+            for (let i = 0; i < DATA_COUNT; i++) {
+                masterDark[i] /= nDark;
+            }
+        } else {
+            masterDark.fill(0);
+        }
+
+        // 3. Generate Light Frames & Create Sample Raw Light
+        let stackedLightSum = new Array(DATA_COUNT).fill(0);
+
+        for (let k = 0; k < nLight; k++) {
+            let singleLight = new Array(DATA_COUNT);
+            for (let i = 0; i < DATA_COUNT; i++) {
+                let readoutNoise = randomGaussian(0, 1.5);
+                let thermalNoise = randomGaussian(0, Math.sqrt(Math.max(1, darkCurrent * 0.2)));
+                let shotNoise = randomGaussian(0, shotNoiseLevel);
+
+                // Raw Light = Object Signal + Bias Offset + Dark Current + All Noises
+                let val = baseSignal[i] + biasOffset + darkCurrent + readoutNoise + thermalNoise + shotNoise;
+                singleLight[i] = Math.max(0, val);
+            }
+
+            // Save sample raw light frame for visualization
+            if (k === 0) {
+                sampleRawLight = [...singleLight];
+            }
+
+            // Calibration for this single light frame
+            for (let i = 0; i < DATA_COUNT; i++) {
+                let calibratedSingle = singleLight[i];
+
+                if (nDark > 0) {
+                    // Trừ Master Dark (đã bao gồm cả Bias)
+                    calibratedSingle -= masterDark[i];
+                } else if (nBias > 0) {
+                    // Nếu không có Dark, trừ Master Bias
+                    calibratedSingle -= masterBias[i];
+                }
+
+                stackedLightSum[i] += calibratedSingle;
+            }
+        }
+
+        // 4. Final Average Stack
+        for (let i = 0; i < DATA_COUNT; i++) {
+            finalCalibrated[i] = Math.max(0, stackedLightSum[i] / nLight);
+        }
+
+        // Render all graphics and stats
+        renderCharts();
+        calculateAndDisplaySNR(nLight);
+    }
+
+    /**
+     * Draws a single chart with fixed Y-axis [0 - 255]
+     */
+    function drawPlot(canvas, data, options = {}) {
+        const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.scale(dpr, dpr);
+
+        const width = rect.width;
+        const height = rect.height;
+
+        const padL = 36;
+        const padB = 24;
+        const padT = 12;
+        const padR = 12;
+
+        const gWidth = width - padL - padR;
+        const gHeight = height - padT - padB;
+
+        const maxY = 255; // Fixed Y Axis Scale
+
+        // Clear
+        ctx.clearRect(0, 0, width, height);
+
+        // Grid lines (Y-axis)
+        ctx.strokeStyle = '#1e293b';
+        ctx.fillStyle = '#64748b';
+        ctx.font = '10px sans-serif';
+        ctx.lineWidth = 1;
+
+        const yTicks = 5;
+        for (let i = 0; i <= yTicks; i++) {
+            const val = Math.round((maxY / yTicks) * i);
+            const y = height - padB - (i / yTicks) * gHeight;
+
+            ctx.beginPath();
+            ctx.moveTo(padL, y);
+            ctx.lineTo(width - padR, y);
+            ctx.stroke();
+
+            ctx.textAlign = 'right';
+            ctx.fillText(val.toString(), padL - 6, y + 3);
+        }
+
+        // Grid lines (X-axis)
+        for (let i = 0; i <= 10; i++) {
+            const idx = i === 10 ? 99 : i * 10;
+            const x = padL + (idx / 99) * gWidth;
+
+            ctx.beginPath();
+            ctx.moveTo(x, height - padB);
+            ctx.lineTo(x, height - padB + 4);
+            ctx.stroke();
+
+            ctx.textAlign = 'center';
+            ctx.fillText(idx.toString(), x, height - padB + 15);
+        }
+
+        // Axes borders
+        ctx.strokeStyle = '#334155';
+        ctx.beginPath();
+        ctx.moveTo(padL, padT);
+        ctx.lineTo(padL, height - padB);
+        ctx.lineTo(width - padR, height - padB);
+        ctx.stroke();
+
+        // Data curve
+        if (data && data.length > 0) {
+            ctx.beginPath();
+            for (let i = 0; i < data.length; i++) {
+                const x = padL + (i / (DATA_COUNT - 1)) * gWidth;
+                const clamped = Math.min(Math.max(data[i], 0), maxY);
+                const y = height - padB - (clamped / maxY) * gHeight;
+
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+
+            ctx.strokeStyle = options.color || '#38bdf8';
+            ctx.lineWidth = 1.8;
+            ctx.stroke();
+
+            // Area Fill
+            ctx.lineTo(padL + gWidth, height - padB);
+            ctx.lineTo(padL, height - padB);
+            ctx.closePath();
+            ctx.fillStyle = options.fillColor || 'rgba(56, 189, 248, 0.12)';
+            ctx.fill();
+        }
+    }
+
+    function renderCharts() {
+        drawPlot(canvasOrigLight, baseSignal, { color: '#4ade80', fillColor: 'rgba(74, 222, 128, 0.15)' });
+        drawPlot(canvasRawLight, sampleRawLight, { color: '#f43f5e', fillColor: 'rgba(244, 63, 94, 0.15)' });
+        drawPlot(canvasMasterBias, masterBias, { color: '#fbbf24', fillColor: 'rgba(251, 191, 36, 0.15)' });
+        drawPlot(canvasMasterDark, masterDark, { color: '#c084fc', fillColor: 'rgba(192, 132, 252, 0.15)' });
+        drawPlot(canvasCalibrated, finalCalibrated, { color: '#4ade80', fillColor: 'rgba(74, 222, 128, 0.15)' });
+    }
+
+    function calculateAndDisplaySNR(nLight) {
+        // Calculate SNR over the target signal region (pixels 0 to 49)
+        // SNR = Mean(Signal) / StandardDeviation(Noise)
+
+        function computeSNR(dataArray) {
+            let signalPixels = dataArray.slice(0, 50);
+            let meanSignal = signalPixels.reduce((a, b) => a + b, 0) / 50;
+            
+            // Expected signal without background bias/dark
+            let targetMean = baseSignal.slice(0, 50).reduce((a, b) => a + b, 0) / 50;
+
+            let variance = signalPixels.reduce((acc, val, idx) => {
+                let diff = val - baseSignal[idx]; // Residual noise from true base signal
+                return acc + diff * diff;
+            }, 0) / 50;
+
+            let stdDev = Math.sqrt(variance);
+            if (stdDev < 0.001) stdDev = 0.001;
+
+            let snrRatio = targetMean / stdDev;
+            return { snrRatio, stdDev };
+        }
+
+        let rawMetrics = computeSNR(sampleRawLight);
+        let finalMetrics = computeSNR(finalCalibrated);
+
+        let rawSNR = Math.max(0.01, rawMetrics.snrRatio);
+        let finalSNR = Math.max(0.01, finalMetrics.snrRatio);
+
+        let rawdB = 20 * Math.log10(rawSNR);
+        let finaldB = 20 * Math.log10(finalSNR);
+
+        let actualGain = finalSNR / rawSNR;
+        let theoryGain = Math.sqrt(nLight);
+
+        statRawSNR.textContent = rawSNR.toFixed(2);
+        statRawSNRdB.textContent = rawdB.toFixed(2) + ' dB';
+
+        statFinalSNR.textContent = finalSNR.toFixed(2);
+        statFinalSNRdB.textContent = finaldB.toFixed(2) + ' dB';
+
+        statGainRatio.textContent = actualGain.toFixed(2) + 'x';
+        statGainTheory.textContent = `Lý thuyết sqrt(N_light): ${theoryGain.toFixed(2)}x`;
+    }
+
+    const inputs = [sliderLight, sliderDark, sliderBias, sliderBiasOffset, sliderDarkCurrent, sliderShotNoise];
+    inputs.forEach(input => input.addEventListener('input', runCalibrationPipeline));
+
+    btnRegenerate.addEventListener('click', () => {
+        generateBaseSignal();
+        runCalibrationPipeline();
+    });
+
+    // btnProcess.addEventListener('click', runCalibrationPipeline);
+
+    let resizeDebounce;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeDebounce);
+        resizeDebounce = setTimeout(renderCharts, 100);
+    });
+
+    window.onload = function() {
+        generateBaseSignal();
+        runCalibrationPipeline();
+    };
+</script>
+</body>
+</html>

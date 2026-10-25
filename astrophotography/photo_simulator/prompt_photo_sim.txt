@@ -1,0 +1,25 @@
+tạo chương trình trên web HTML5 với yêu cầu sau:
+
+- Trang web cơ bản, không cần template, chỉ dùng để chạy thử. Chương trình sẽ được copy vào một trang web khác.
+- Chương trình mô phỏng chụp ảnh. Có 2 khung, một là cảnh gốc nằm bên trái, 2 là ảnh kết quả nằm bên phải.
+- Khung ảnh gốc kích thước 768x768 được ghép chồng từ 2 ảnh:
+    + Ảnh đầu là file background.png, kích thước gốc 768x1376 nằm ở dưới. Vị trí y=0 trùng với khung ảnh.
+    + ảnh sau là file foreground.png, kích thước gốc 768x768 nằm chồng lên trên. Một phần ảnh trong suốt. Vị trí trùng với khung ảnh.
+- Khung ảnh gốc có animation được tạo bằng cách cho ảnh background di chuyển lên trên với tốc độ 1px mỗi frame (animation tốc độ 10 FPS). Ảnh foreground vẫn giữ nguyên vị trí. Khung ảnh có kích thước không đổi.
+- Dưới 2 khung ảnh tạo các slide bar bao gồm các thông số:
+    + ISO: 100, 200, 400, 800, 1600, 3200, 6400. Slide bar trượt theo từng nấc, không có số lẻ 
+    + Tốc độ màn trập (exposure): 1/100, 1/50, 1/10, 1s, 2s, 5s, 10s, 30s. Trượt theo từng nấc, ko có số lẻ
+    + Khẩu độ (aperture): F2.8, F4, F6.3, F8, F16, F22
+- Dưới các slide bar tạo nút Chụp để bắt đầu chụp.
+- Khung ảnh kết quả là tổng hợp ủa từng frame ảnh gốc được cộng lại với nhau (mỗi pixel có giá trị tối đa 255 mỗi kênh màu)
+- Công thức:
+    for(i = 0; i < exposure_millisecond; i+= 100)
+        output_pixel += input_pixel[i] * (ISO * iso_coefficient) * (aperture * aperture_coefficient)
+  Khẩu độ được quy đổi:
+    + F22 -> 1
+    + F16 -> 2
+    + F8 -> 4
+    ...
+    + F2.8 -> 32
+  Các hệ số iso_coefficient, aperture_coefficient sẽ được tinh chỉnh sau
+- cộng thêm vào mỗi pixel một số ngẫu nhiên để mô phỏng nhiễu: noise = random(0f, 1f) * ISO * noise_coeficient

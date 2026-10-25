@@ -1,0 +1,18 @@
+:doctype: book
+:linkcss:
+:stylesdir: .
+:stylesheet: style-index.css
+:stem: latexmath
+
+
+
+[.banner]
+image::images/banner.png[]
+
+= Viết linh tinh
+
+Tổng hợp những bài viết linh tinh, chủ đề tùm lum...
+
+== Thiên văn học
+
+link:astrophotography/01_astrophotography_index.html[1. Cơ bản về nhiếp ảnh thiên văn]

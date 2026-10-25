@@ -1,0 +1,12 @@
+tạo chương trình trên web HTML5 với yêu cầu sau:
+
+- Trang web cơ bản, không cần template, chỉ dùng để chạy thử. Chương trình sẽ được copy vào một trang web khác.
+- Chương trình mô phỏng lượng ánh sáng thu được khi chụp anh, bao gồm ánh sáng từ vật thể và tín hiệu nhiễu.
+- Dữ liệu chuẩn, tượng trưng cho các điểm sáng của ảnh:
+    * Một mảng 100 phần tử. Mỗi phần tử có giá trị từ 0 đến 255, chia làm 2 đoạn.
+        ** 50 phần tử đầu tiên nằm trong khoảng từ 10-20, với các giá trị tăng hoặc giảm ngẫu nhiên, nhưng 2 phần tử liền kề không chênh nhau quá 2 đơn vị.
+        ** 50 phần tử sau có giá trị là 4 hoặc 5, ngẫu nhiên.
+- Dữ liệu nhiễu: 100 phần tử ngẫu nhiên từ 3 đến 5. Dữ liệu nhiễu không cố định mà luôn được sinh ngẫu nhiên khi cần.
+- Vẽ một biêu đồ 2 trục làm mẫu cho dữ liệu chuẩn, trục hoành từ phần tử 0 đến 99. Trục tung từ 0 đến 255.
+- Biểu đồ thứ 2 nằm bên cạnh, thể hiện dữ liệu đã được cộng dồn qua nhiều lần chồng ảnh. Trong đó, mỗi tấm ảnh được tính bằng cách cộng phần tử dữ liệu chuẩn với phần tử nhiễu.
+- Một thanh trượt ở dưới là số tấm ảnh được chồng lên nhau. Giá trị từ 1-10. Mỗi lần thay đổi giá trị, biểu đồ thứ 2 sẽ được cập nhật bằng tổng số tấm ảnh được cộng vào với nhau.

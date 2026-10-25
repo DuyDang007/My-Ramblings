@@ -1,0 +1,138 @@
+* {
+    /* Đổi sang border-box để tính toán padding không bị tràn viền */
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #1e1e24;
+    margin: 0;
+    /* Xóa display: flex ở đây để margin: auto hoạt động chính xác */
+    padding: 20px 0;
+    /* Trên/dưới cách 20px, hai bên không padding để nội dung căn giữa chuẩn */
+    color: #fff;
+}
+
+body .article {
+    display: flexbox;
+    grid-template-columns: 280px 1fr 280px;
+}
+
+/* #toc {
+    float: left;
+    align-content: baseline;
+    width: 100%;
+    margin-right: 5px;
+    padding: 5px;
+} */
+
+/* Định dạng chung cho tất cả các khối chính của AsciiDoc để đưa vào giữa */
+#header, #content, #footnotes, #footer {
+    max-width: 1000px;
+    /* Chiều rộng tối đa của nội dung bài viết */
+    margin-left: auto;
+    /* BẮT BUỘC: Tự động căn giữa lề trái */
+    margin-right: auto;
+    /* BẮT BUỘC: Tự động căn giữa lề phải */
+    padding: 20px 40px;
+    box-sizing: border-box;
+    /* Đảm bảo co giãn tốt trên màn hình nhỏ */
+}
+
+/* Tạo hiệu ứng đổ bóng hoặc viền dọc cho khu vực nội dung chính */
+#content {
+    overflow: auto;
+    align-items: center;
+    border-left: 1px solid #33325a;
+    border-right: 1px solid #33325a;
+    min-height: 100vh;
+    /* Kéo dài vùng nội dung xuống hết chân trang */
+    background-color: #1e1e24;
+    /* Giữ màu nền đồng nhất */
+}
+
+.title {
+    font-style: italic;
+    align-content: center;
+    text-align: center;
+}
+
+h2 {
+    margin-bottom: 20px;
+    color: #4da6ff;
+}
+
+/* Định dạng các đoạn văn */
+.paragraph p, p {
+    margin-top: 0;
+    margin-bottom: 1.5em;
+    /* Khoảng cách dưới mỗi đoạn */
+    line-height: 1.6;
+    /* Khoảng cách giữa các dòng thoáng hơn */
+}
+
+/* Khoảng cách giữa đoạn văn và các tiêu đề (H1, H2, H3) */
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 1.8em;
+    /* Tạo khoảng trống phía trên tiêu đề */
+    margin-bottom: 0.5em;
+    /* Khoảng trống từ tiêu đề xuống đoạn văn ngay dưới nó */
+}
+
+/* Định dạng khối bọc ảnh của AsciiDoc */
+.imageblock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Căn giữa toàn bộ khối ảnh */
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+}
+
+/* Định dạng thẻ img bên trong */
+.imageblock .content img {
+    /* width: 80%; */
+    /* Ảnh luôn chiếm đúng 80% chiều rộng của khối nội dung */
+    max-width: 80%;
+    /* Tự phóng to 100% nếu xem trên điện thoại */
+    height: auto;
+    /* Giữ nguyên tỷ lệ ảnh, không bị méo */
+    display: block;
+    margin: 0 auto;
+    /* Căn giữa ảnh tuyệt đối */
+}
+
+.imageblock .title {
+    margin-top: 10px;
+    line-height: 1.6;   /* khoảng cách giữa các dòng */
+}
+
+.iframe {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Căn giữa toàn bộ khối ảnh */
+}
+
+a:link {
+    color: #4da6ff;
+    text-decoration: none;
+}
+
+a:visited {
+    color: green;
+    text-decoration: none;
+}
+
+/* Hỗ trợ hiển thị trên điện thoại (Responsive) */
+@media screen and (max-width: 1199px) {
+    #header,
+    #content,
+    #footnotes,
+    #footer {
+        max-width: 95%;
+        padding: 15px;
+        border: none;
+        font-size: large;
+    }
+}

@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mô Phỏng Chồng Ảnh & Tín Hiệu Nhiễu</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --accent-color: #38bdf8;
+            --signal-color: #4ade80;
+            --stack-color: #f43f5e;
+            --border-color: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--text-sub);
+            font-size: 0.9rem;
+        }
+
+        /* Controls Section */
+        .controls {
+            background-color: rgba(15, 23, 42, 0.6);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid var(--border-color);
+        }
+
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 280px;
+        }
+
+        .slider-group label {
+            font-weight: 600;
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+
+        .slider-group input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #475569;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .slider-value {
+            background: var(--accent-color);
+            color: #0f172a;
+            font-weight: bold;
+            padding: 4px 12px;
+            border-radius: 16px;
+            min-width: 36px;
+            text-align: center;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background-color: #2563eb;
+        }
+
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-sub);
+        }
+
+        /* Charts Grid Layout */
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 20px;
+        }
+
+        @media (max-width: 980px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-card {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .chart-card h2 {
+            font-size: 1rem;
+            margin-bottom: 12px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chart-card h2 .badge {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: normal;
+        }
+
+        .badge-green { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+        .badge-red { background: rgba(244, 63, 94, 0.2); color: #f43f5e; }
+
+        .canvas-wrapper {
+            position: relative;
+            width: 100%;
+            height: 300px;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Stats Footer */
+        .stats-panel {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            font-size: 0.85rem;
+        }
+
+        .stat-item {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        .stat-item span {
+            display: block;
+            color: var(--text-sub);
+            margin-bottom: 4px;
+        }
+
+        .stat-item strong {
+            font-size: 1rem;
+            color: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Mô Phỏng Lượng Ánh Sáng Thu Được & Chồng Ảnh</h1>
+        <p>Phân tích hiệu ứng tích lũy tín hiệu ánh sáng chuẩn và tín hiệu nhiễu ngẫu nhiên qua N tấm ảnh</p>
+    </header>
+
+    <div class="controls">
+        <div class="slider-group">
+            <label for="stackSlider">Số ảnh chồng (N):</label>
+            <input type="range" id="stackSlider" min="1" max="20" value="1" step="1">
+            <span class="slider-value" id="sliderVal">1</span>
+        </div>
+
+        <div class="btn-group">
+            <button id="btnRegenerate">Tạo lại Dữ liệu Chuẩn</button>
+        </div>
+
+        <!-- <div class="toggle-group">
+            <input type="checkbox" id="chkAvgMode">
+            <label for="chkAvgMode">Hiển thị trung bình (Sum / N)</label>
+        </div> -->
+    </div>
+
+    <div class="charts-container">
+        <!-- Biểu đồ 1: Dữ liệu chuẩn gốc -->
+        <div class="chart-card">
+            <h2>
+                Biểu Đồ 1: Dữ liệu chuẩn gốc
+                <span class="badge badge-green">Tín hiệu gốc</span>
+            </h2>
+            <div class="canvas-wrapper">
+                <canvas id="chartBase"></canvas>
+            </div>
+        </div>
+
+        <!-- Biểu đồ 2: Dữ liệu cộng dồn / Chồng ảnh -->
+        <div class="chart-card">
+            <h2>
+                Biểu Đồ 2: Tín hiệu trung bình
+                <span class="badge badge-red" id="stackedBadge">1 Tấm ảnh</span>
+            </h2>
+            <div class="canvas-wrapper">
+                <canvas id="chartStacked"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-panel">
+        <!-- <div class="stat-item">
+            <span>Tín hiệu TB Chuẩn (0-49):</span>
+            <strong id="statBase1">0</strong>
+        </div>
+        <div class="stat-item">
+            <span>Tín hiệu TB Chuẩn (50-99):</span>
+            <strong id="statBase2">0</strong>
+        </div>
+        <div class="stat-item">
+            <span>Nhiễu trung bình / tấm:</span>
+            <strong>4.0 (3.0 - 5.0)</strong>
+        </div> -->
+        <div class="stat-item">
+            <span>Tỷ lệ SNR cải thiện (lý thuyết):</span>
+            <strong id="statSNR">1.0x</strong>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Đã cố định 100 điểm dữ liệu
+    const DATA_COUNT = 100;
+    const SIGNAL_MIN = 10;
+    const SIGNAL_MAX = 20;
+    const BACKGROUND_MIN = 2;
+    const BACKGROUND_MAX = 3;
+    const NOISE_MIN = 1;
+    const NOISE_MAX = 20;
+    const NUM_OF_PHOTO = 20; // Số lượng tấm ảnh tối đa
+
+    const IS_AVG = true;
+    
+    // Mảng lưu dữ liệu chuẩn gốc (100 phần tử)
+    let baseData = new Array(DATA_COUNT);
+    
+    // Mảng lưu danh sách nhiễu độc lập cho từng tấm ảnh (tối đa 10 tấm)
+    let noiseStack = []; 
+
+    // DOM Elements
+    const stackSlider = document.getElementById('stackSlider');
+    const sliderVal = document.getElementById('sliderVal');
+    const btnRegenerate = document.getElementById('btnRegenerate');
+    // const chkAvgMode = document.getElementById('chkAvgMode');
+    const stackedBadge = document.getElementById('stackedBadge');
+    
+    const canvasBase = document.getElementById('chartBase');
+    const canvasStacked = document.getElementById('chartStacked');
+    
+    // const statBase1 = document.getElementById('statBase1');
+    // const statBase2 = document.getElementById('statBase2');
+    const statSNR = document.getElementById('statSNR');
+
+    /**
+     * Sinh dữ liệu chuẩn đáp ứng quy tắc:
+     * - 50 phần tử đầu: [10 - 20], chênh lệch giữa 2 phần tử liền kề <= 2.
+     * - 50 phần tử sau: ngẫu nhiên 4 hoặc 5.
+     */
+    function generateBaseData() {
+        // 1. Generate first 50 elements
+        let currentVal = 10 + Math.floor(Math.random() * 11); // start in [10, 20]
+        baseData[0] = currentVal;
+        
+        for (let i = 1; i < 50; i++) {
+            // Random change: -2, -1, 0, 1, 2
+            let delta = Math.floor(Math.random() * 5) - 2; 
+            currentVal += delta;
+            
+            // Giới hạn trong khoảng [10, 20]
+            if (currentVal < SIGNAL_MIN) currentVal = SIGNAL_MIN;
+            if (currentVal > SIGNAL_MAX) currentVal = SIGNAL_MAX;
+            
+            baseData[i] = currentVal;
+        }
+
+        // 2. Generate last 50 elements: random 4 or 5
+        for (let i = 50; i < 100; i++) {
+            baseData[i] = Math.random() < 0.5 ? BACKGROUND_MIN : BACKGROUND_MAX;
+        }
+
+        // Tạo sẵn mảng nhiễu cho 10 tấm ảnh để giữ tính nhất quán khi kéo thanh trượt
+        generateNoiseStack();
+        
+        // Cập nhật thống kê
+        // updateStats();
+    }
+
+    /**
+     * Sinh 10 mảng nhiễu, mỗi mảng 100 phần tử (giá trị 3 đến 5)
+     */
+    function generateNoiseStack() {
+        noiseStack = [];
+        for (let k = 0; k < NUM_OF_PHOTO; k++) {
+            let imgNoise = new Array(DATA_COUNT);
+            for (let i = 0; i < DATA_COUNT; i++) {
+                // Giá trị ngẫu nhiên từ 3 đến 5 (3, 4, 5)
+                imgNoise[i] = NOISE_MIN + Math.floor(Math.random() * (NOISE_MAX - NOISE_MIN + 1));
+            }
+            noiseStack.push(imgNoise);
+        }
+    }
+
+    /**
+     * Tính toán mảng dữ liệu chồng ảnh cho N tấm ảnh
+     * @param {number} N - Số lượng ảnh chồng (1 đến 10)
+     * @param {boolean} isAverage - Hiển thị trung bình hay tổng
+     */
+    function computeStackedData(N, isAverage = false) {
+        let result = new Array(DATA_COUNT).fill(0);
+        
+        // Cộng dồn N tấm ảnh
+        for (let i = 0; i < DATA_COUNT; i++) {
+            let sum = 0;
+            for (let k = 0; k < N; k++) {
+                sum += baseData[i] + noiseStack[k][i];
+            }
+            result[i] = isAverage ? (sum / N) : sum;
+        }
+        
+        return result;
+    }
+
+    /**
+     * Hàm vẽ biểu đồ tổng quát lên Canvas 2D
+     * @param {HTMLCanvasElement} canvas 
+     * @param {Array<number>} data - Mảng dữ liệu 100 điểm
+     * @param {Object} options - Cấu hình vẽ (maxY, color, labelY)
+     */
+    function drawChart(canvas, data, options = {}) {
+        const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        
+        // Fit canvas resolution to CSS size
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.scale(dpr, dpr);
+
+        const width = rect.width;
+        const height = rect.height;
+
+        // Margins for axes
+        const paddingLeft = 45;
+        const paddingBottom = 30;
+        const paddingTop = 15;
+        const paddingRight = 15;
+
+        const graphWidth = width - paddingLeft - paddingRight;
+        const graphHeight = height - paddingTop - paddingBottom;
+
+        // Scale factors
+        const maxY = options.maxY || 255;
+        const color = options.color || '#38bdf8';
+
+        // Clear canvas
+        ctx.clearRect(0, 0, width, height);
+
+        // 1. Draw Grid & Y-Axis Labels
+        ctx.strokeStyle = '#334155';
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '10px sans-serif';
+        ctx.lineWidth = 1;
+
+        const ySteps = 5;
+        for (let i = 0; i <= ySteps; i++) {
+            const val = Math.round((maxY / ySteps) * i);
+            const y = height - paddingBottom - (i / ySteps) * graphHeight;
+            
+            // Grid line
+            ctx.beginPath();
+            ctx.moveTo(paddingLeft, y);
+            ctx.lineTo(width - paddingRight, y);
+            ctx.stroke();
+
+            // Text Y
+            ctx.textAlign = 'right';
+            ctx.fillText(val.toString(), paddingLeft - 8, y + 3);
+        }
+
+        // 2. Draw X-Axis Grid & Labels
+        const xSteps = 10; // 0, 10, 20... 90, 99
+        for (let i = 0; i <= xSteps; i++) {
+            const idx = i === xSteps ? 99 : i * 10;
+            const x = paddingLeft + (idx / 99) * graphWidth;
+
+            // Line
+            ctx.beginPath();
+            ctx.moveTo(x, height - paddingBottom);
+            ctx.lineTo(x, height - paddingBottom + 5);
+            ctx.stroke();
+
+            // Text X
+            ctx.textAlign = 'center';
+            ctx.fillText(idx.toString(), x, height - paddingBottom + 18);
+        }
+
+        // Axis Lines
+        ctx.strokeStyle = '#64748b';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        // Y Axis
+        ctx.moveTo(paddingLeft, paddingTop);
+        ctx.lineTo(paddingLeft, height - paddingBottom);
+        // X Axis
+        ctx.lineTo(width - paddingRight, height - paddingBottom);
+        ctx.stroke();
+
+        // 3. Draw Data Line & Area Fill
+        if (data && data.length > 0) {
+            ctx.beginPath();
+            for (let i = 0; i < data.length; i++) {
+                const x = paddingLeft + (i / (DATA_COUNT - 1)) * graphWidth;
+                const clampedVal = Math.min(Math.max(data[i], 0), maxY);
+                const y = height - paddingBottom - (clampedVal / maxY) * graphHeight;
+
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+
+            // Stroke line
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Fill under curve
+            const lastX = paddingLeft + graphWidth;
+            const firstX = paddingLeft;
+            ctx.lineTo(lastX, height - paddingBottom);
+            ctx.lineTo(firstX, height - paddingBottom);
+            ctx.closePath();
+
+            ctx.fillStyle = options.fillColor || 'rgba(56, 189, 248, 0.15)';
+            ctx.fill();
+
+            // Draw Data Points
+            ctx.fillStyle = color;
+            for (let i = 0; i < data.length; i++) {
+                const x = paddingLeft + (i / (DATA_COUNT - 1)) * graphWidth;
+                const clampedVal = Math.min(Math.max(data[i], 0), maxY);
+                const y = height - paddingBottom - (clampedVal / maxY) * graphHeight;
+
+                ctx.beginPath();
+                ctx.arc(x, y, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+    }
+
+    function renderAllCharts() {
+        const N = parseInt(stackSlider.value, 10);
+        const isAvg = IS_AVG;;
+
+        // Update Labels
+        sliderVal.textContent = N;
+        stackedBadge.textContent = `${N} Tấm ảnh${N > 1 ? ' chồng lên nhau' : ''}`;
+
+        // 1. Draw Base Chart (Trục Y cố định 0-255)
+        drawChart(canvasBase, baseData, {
+            maxY: 100,
+            color: '#4ade80',
+            fillColor: 'rgba(74, 222, 128, 0.15)'
+        });
+
+        // 2. Draw Stacked Chart
+        const stackedData = computeStackedData(N, isAvg);
+        
+        // Xác định trục Y cao nhất phù hợp:
+        // - Nếu là Chế độ Trung bình: Giữ nguyên max 255 (hoặc 50)
+        // - Nếu là Chế độ Tổng: Tăng MaxY theo N (255 * N hoặc tự điều chỉnh sinh động)
+        let maxYStacked = 100;
+        if (!isAvg) {
+            // Khi cộng dồn, tín hiệu tối đa ~ (20+5)*N = 25N.
+            // Để hiển thị đẹp, nếu N nhỏ giữ 255, nếu tổng vượt 255 thì mở rộng.
+            const maxValInStacked = Math.max(...stackedData);
+            maxYStacked = Math.max(100, Math.ceil(maxValInStacked / 50) * 50);
+        }
+
+        drawChart(canvasStacked, stackedData, {
+            maxY: maxYStacked,
+            color: '#f43f5e',
+            fillColor: 'rgba(244, 63, 94, 0.2)'
+        });
+
+        // Cập nhật chỉ số SNR
+        statSNR.textContent = Math.sqrt(N).toFixed(2) + 'x';
+    }
+
+    // function updateStats() {
+    //     const sum1 = baseData.slice(0, 50).reduce((a, b) => a + b, 0);
+    //     const sum2 = baseData.slice(50, 100).reduce((a, b) => a + b, 0);
+
+    //     statBase1.textContent = (sum1 / 50).toFixed(1);
+    //     statBase2.textContent = (sum2 / 50).toFixed(1);
+    // }
+
+    // Event listeners
+    stackSlider.addEventListener('input', renderAllCharts);
+    // chkAvgMode.addEventListener('change', renderAllCharts);
+
+    btnRegenerate.addEventListener('click', () => {
+        generateBaseData();
+        renderAllCharts();
+    });
+
+    // Window Resize Handler to redraw canvas properly
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(renderAllCharts, 100);
+    });
+
+    // Initial setup on load
+    window.onload = function() {
+        generateBaseData();
+        renderAllCharts();
+    };
+</script>
+
+</body>
+</html>

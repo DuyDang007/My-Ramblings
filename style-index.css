@@ -1,0 +1,100 @@
+/* ======= Global ======= */
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    background: #e9ecef; /* màu hai bên */
+    background-color: #1e1e24;
+    color: #e6e5e5;
+    font-family: "Segoe UI", Arial, sans-serif;
+    line-height: 1.7;
+}
+
+/* ======= Main document ======= */
+
+#content {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 56px 80px;
+    background: #40395c;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+/* ======= Banner ======= */
+.banner {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+}
+
+.banner img {
+    display: block;
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+}
+
+/* ======= Title ======= */
+
+h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+    margin: 48px 0 24px;
+    color: #a29dce;
+}
+
+#toctitle,
+h2 {
+    margin-top: 2rem;
+    color: #4da6ff;
+}
+
+/* ======= Paragraph ======= */
+
+p {
+    margin: 1rem 0;
+}
+
+/* ======= Tables ======= */
+
+table {
+    width: 100%;
+}
+
+/* ======= Code ======= */
+
+pre,
+.listingblock .content {
+    border-radius: 8px;
+}
+
+/* ======= Link ========= */
+
+a:link {
+    color: #4da6ff;
+    text-decoration: none;
+}
+
+a:visited {
+    color: green;
+    text-decoration: none;
+}
+
+/* ======= Mobile ======= */
+
+@media (max-width: 768px) {
+    #content {
+        padding: 0 24px 60px;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    .banner img {
+        height: 220px;
+    }
+}
