@@ -34,6 +34,7 @@
 <li><a href="#_5_3_2_hiệu_chuẩn_nhiễu_đọc_bias_frame">5.3.2. Hiệu chuẩn Nhiễu đọc (Bias Frame)</a></li>
 <li><a href="#_5_3_3_hiệu_chuẩn_trường_phẳng_flat_frame">5.3.3. Hiệu chuẩn trường phẳng (Flat Frame)</a></li>
 <li><a href="#_5_3_4_thí_nghiệm_trên_mô_phỏng">5.3.4. Thí nghiệm trên mô phỏng</a></li>
+<li><a href="#_5_3_5_tóm_tắt_quy_trình_stacking">5.3.5. Tóm tắt quy trình stacking</a></li>
 </ul>
 </li>
 </ul>
@@ -80,13 +81,13 @@
 <div class="content">
 <img src="images_astrophotography/milky-way-ta-chi-nhu.JPG" alt="MilkyWay" width="640" height="640">
 </div>
-<div class="title">Ảnh 1. Dải Ngân Hà tại đỉnh Tà Chì Nhù, Yên Bái. Tác giả: Tui</div>
+<div class="title">Ảnh 1. Dải Ngân Hà tại đỉnh Tà Chì Nhù, Yên Bái. Ảnh sử dụng máy ảnh và ống kính góc rộng thông thường, không cần thiết bị hỗ trợ khác ngoài cái tripod. Tác giả: Tui</div>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="images_astrophotography/dumbell_nebula_hoang_long.jpg" alt="M27" width="640" height="640">
 </div>
-<div class="title">Ảnh 2. Tinh vân Dumbell (M27) - Tác giả: Hoàng Long</div>
+<div class="title">Ảnh 2. Tinh vân Dumbell (M27). Dùng các kỹ thuật và thiết bị phức tạp hơn như chân đế bám nhật động, kính lọc phổ hẹp. - Tác giả: Hoàng Long</div>
 </div>
 </div>
 </div>
@@ -407,7 +408,7 @@
 </ul>
 </div>
 <div class="paragraph">
-<p>Chuẩn bị một nguồn sáng phẳng (màn hình tablet nền trắng, hoặc đèn chuyên dụng), dùng một tấm vải hoặc giấy trắng phủ lên đầu ống kính, đặt nguồn sáng phẳng lên trên. Xem hình dưới:</p>
+<p>Chuẩn bị một nguồn sáng phẳng (màn hình tablet nền trắng, hoặc đèn dạng panel có mặt sáng đều), dùng một tấm vải hoặc giấy trắng phủ lên đầu ống kính, đặt nguồn sáng phẳng lên trên. Xem hình dưới:</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -443,7 +444,7 @@
 <div class="ulist">
 <ul>
 <li>
-<p>Khi không sử dụng Dark Frame và Bias Frame, 1 tấm ảnh sẽ bao gồm nhiễu nhiệt và nhiễu đọc, bạn thấy tín hiệu được nâng cao lên một mức nền và có tính bất ổn định.</p>
+<p>Khi không sử dụng Dark Frame và Bias Frame, 1 tấm ảnh sẽ bao gồm nhiễu nhiệt và nhiễu đọc, bạn thấy tín hiệu được nâng cao lên một mức nền và có tính ngẫu nhiên cao. Khi nâng Mức độ nhiễu hạt, thậm chí bạn còn không thể phân biệt đâu là nền trời, đâu là vật thể.</p>
 </li>
 <li>
 <p>Không sử dụng Dark Frame và Bias Frame, nhưng stack nhiều ảnh lại. Ảnh kết quả đã giống hơn với tín hiệu gốc, nhưng được nâng cao lên. Đây chính là mức nền nhiễu mà ta cần loại bỏ bằng Dark Frame.</p>
@@ -457,7 +458,31 @@
 <p>Giờ hãy thử thêm Bias Frame, bạn sẽ thấy ảnh không có gì thay đổi. Ơ! Không lẽ lý thuyết ta học từ nãy giờ lại sai à? Thật ra bản thân Dark Frame đã bao gồm cả tín hiệu Nhiễu đọc (do đây là nhiễu mà thiết bị luôn luôn sinh ra). Nên khi trừ đi master dark, nó cũng sẽ trừ luôn cả bias.</p>
 </div>
 <div class="paragraph">
-<p>Vậy cuối cùng thì Bias để làm gì? Thật ra, Bias Frame được sử dụng để khử nhiễu cho Flat Frame chứ không phải Light Frame. Do Flat Frame có thời gian phơi sáng khác, việc khử nhiễu của nó cần những ảnh hiệu chỉnh riêng. Trong trường hợp này, ta có thể chọn một trong hai Bias Frame hoặc Dark Flat Frame. Dùng Bias Frame khi có thời gian phơi sáng Flat Frame ngắn dưới 1s, giúp quá trình chụp đơn giản. Khi thời gian phơi Flat Frame dài hơn, do Nhiễu dòng tối tích tụ đủ lớn, ta cần phải chụp Dark Flat để khử cả Nhiễu dòng tối và Nhiễu đọc cho nó.</p>
+<p>Vậy cuối cùng thì Bias để làm gì? Thật ra, Bias Frame vẫn được dùng để khử nhiễu đọc trên cả Light Frame, Dark Frame, Flat Frame. Nhằm mục đích cô lập tín hiệu nhiễu, giúp Dark Frame chỉ chứa Nhiễu dòng tối, loại đi Nhiễu đọc ở Light Frame hay Flat Frame. Nói cách khác, chúng giúp cho các ảnh chỉ chứa đúng loại nhiễu mà ta mong muốn theo từng mục đích. Quá trình stack ảnh sẽ trở nên chính xác hơn.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_5_3_5_tóm_tắt_quy_trình_stacking">5.3.5. Tóm tắt quy trình stacking</h4>
+<div class="paragraph">
+<p>Quá trình dưới đây viết theo tài liệu của phần mềm Deep Sky Stacker, giúp bạn có cái nhìn tổng quát. Lưu ý các thuật toán cụ thể để tạo ra ảnh sẽ không được nói chi tiết để tránh phức tạp.</p>
+</div>
+<div class="paragraph">
+<p>Bước 1: Tổng hợp các Bias Frame để ra được Master Bias.</p>
+</div>
+<div class="paragraph">
+<p>Bước 2: Tổng hợp các Dark Frame nếu có, sau đó trừ đi Master Bias để ra được Master Dark.</p>
+</div>
+<div class="paragraph">
+<p>Bước 3: Tổng hợp các Dark Flat Frame nếu có, sau đó trừ đi Master Bias để ra được Master Dark Flat.</p>
+</div>
+<div class="paragraph">
+<p>Bước 4: Tổng hợp các Flat Frame nếu có, sau đó trừ đi Master Dark Flat và Master Bias để ra được Master Flat.</p>
+</div>
+<div class="paragraph">
+<p>Bước 5: Tính toán độ lệch và độ xoay của từng Light Frame dựa vào vị trí các ngôi sao trong ảnh. Do mỗi ảnh, vị trí có thể lệch nhau đôi chút nên cần tính toán để khi chồng ảnh, các vật thể sẽ phải nằm khớp với nhau.</p>
+</div>
+<div class="paragraph">
+<p>Bước 6: Mỗi Light Frame sẽ được trừ đi Master Dark, Master Bias, chia cho Master Flat và bù trừ vị trí lệch. Tổng hợp các Light Frame lại sẽ ra được ảnh kết quả cuối cùng.</p>
 </div>
 </div>
 </div>
@@ -498,7 +523,7 @@
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-10-25 21:53:06 +0700
+Last updated 2026-11-02 00:25:54 +0700
 </div>
 </div>
 <script type="text/x-mathjax-config">

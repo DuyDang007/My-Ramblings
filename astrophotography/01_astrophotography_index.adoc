@@ -217,7 +217,7 @@ Ngoài nhiễu ngẫu nhiên, ta còn gặp những trường hợp sai lệch c
 * Giữ nguyên vị trí lấy nét (thường là vô cực).
 * Giữ nguyên ISO.
 
-Chuẩn bị một nguồn sáng phẳng (màn hình tablet nền trắng, hoặc đèn chuyên dụng), dùng một tấm vải hoặc giấy trắng phủ lên đầu ống kính, đặt nguồn sáng phẳng lên trên. Xem hình dưới:
+Chuẩn bị một nguồn sáng phẳng (màn hình tablet nền trắng, hoặc đèn dạng panel có mặt sáng đều), dùng một tấm vải hoặc giấy trắng phủ lên đầu ống kính, đặt nguồn sáng phẳng lên trên. Xem hình dưới:
 
 .Chụp flat frame bằng màn hình tablet nền trắng và vải để tán xạ ánh sáng đều hơn. Ảnh: Trevor Jones - astrobackyard.com
 image::images_astrophotography/take-flat-frame.png[img11, 720, 720]
@@ -241,13 +241,30 @@ Chương trình mô phỏng dưới đây sẽ giúp bạn hình dung các mà c
 
 Giải thích một chút:
 
-* Khi không sử dụng Dark Frame và Bias Frame, 1 tấm ảnh sẽ bao gồm nhiễu nhiệt và nhiễu đọc, bạn thấy tín hiệu được nâng cao lên một mức nền và có tính bất ổn định.
+* Khi không sử dụng Dark Frame và Bias Frame, 1 tấm ảnh sẽ bao gồm nhiễu nhiệt và nhiễu đọc, bạn thấy tín hiệu được nâng cao lên một mức nền và có tính ngẫu nhiên cao. Khi nâng Mức độ nhiễu hạt, thậm chí bạn còn không thể phân biệt đâu là nền trời, đâu là vật thể. 
 * Không sử dụng Dark Frame và Bias Frame, nhưng stack nhiều ảnh lại. Ảnh kết quả đã giống hơn với tín hiệu gốc, nhưng được nâng cao lên. Đây chính là mức nền nhiễu mà ta cần loại bỏ bằng Dark Frame.
 * Thêm nhiều tấm Dark Frame, bạn sẽ thấy nền nhiễu được loại trừ, ảnh kết quả đã cho tín hiệu gần hơn với giá trị gốc.
 
 Giờ hãy thử thêm Bias Frame, bạn sẽ thấy ảnh không có gì thay đổi. Ơ! Không lẽ lý thuyết ta học từ nãy giờ lại sai à? Thật ra bản thân Dark Frame đã bao gồm cả tín hiệu Nhiễu đọc (do đây là nhiễu mà thiết bị luôn luôn sinh ra). Nên khi trừ đi master dark, nó cũng sẽ trừ luôn cả bias.
 
-Vậy cuối cùng thì Bias để làm gì? Thật ra, Bias Frame được sử dụng để khử nhiễu cho Flat Frame chứ không phải Light Frame. Do Flat Frame có thời gian phơi sáng khác, việc khử nhiễu của nó cần những ảnh hiệu chỉnh riêng. Trong trường hợp này, ta có thể chọn một trong hai Bias Frame hoặc Dark Flat Frame. Dùng Bias Frame khi có thời gian phơi sáng Flat Frame ngắn dưới 1s, giúp quá trình chụp đơn giản. Khi thời gian phơi Flat Frame dài hơn, do Nhiễu dòng tối tích tụ đủ lớn, ta cần phải chụp Dark Flat để khử cả Nhiễu dòng tối và Nhiễu đọc cho nó.
+Vậy cuối cùng thì Bias để làm gì? Thật ra, Bias Frame vẫn được dùng để khử nhiễu đọc trên cả Light Frame, Dark Frame, Flat Frame. Nhằm mục đích cô lập tín hiệu nhiễu, giúp Dark Frame chỉ chứa Nhiễu dòng tối, loại đi Nhiễu đọc ở Light Frame hay Flat Frame. Nói cách khác, chúng giúp cho các ảnh chỉ chứa đúng loại nhiễu mà ta mong muốn theo từng mục đích. Quá trình stack ảnh sẽ trở nên chính xác hơn.
+
+==== 5.3.5. Tóm tắt quy trình stacking
+
+Quá trình dưới đây viết theo tài liệu của phần mềm Deep Sky Stacker, giúp bạn có cái nhìn tổng quát. Lưu ý các thuật toán cụ thể để tạo ra ảnh sẽ không được nói chi tiết để tránh phức tạp.
+
+Bước 1: Tổng hợp các Bias Frame để ra được Master Bias.
+
+Bước 2: Tổng hợp các Dark Frame nếu có, sau đó trừ đi Master Bias để ra được Master Dark.
+
+Bước 3: Tổng hợp các Dark Flat Frame nếu có, sau đó trừ đi Master Bias để ra được Master Dark Flat.
+
+Bước 4: Tổng hợp các Flat Frame nếu có, sau đó trừ đi Master Dark Flat và Master Bias để ra được Master Flat.
+
+Bước 5: Tính toán độ lệch và độ xoay của từng Light Frame dựa vào vị trí các ngôi sao trong ảnh. Do mỗi ảnh, vị trí có thể lệch nhau đôi chút nên cần tính toán để khi chồng ảnh, các vật thể sẽ phải nằm khớp với nhau.
+
+Bước 6: Mỗi Light Frame sẽ được trừ đi Master Dark, Master Bias, chia cho Master Flat và bù trừ vị trí lệch. Tổng hợp các Light Frame lại sẽ ra được ảnh kết quả cuối cùng.
+
 
 == 6. Tổng kết lại
 
